@@ -1,0 +1,11 @@
+# Python packages required for URL prediction (index.py + inputScript.py)
+joblib>=1.2.0
+scikit-learn>=1.0.0
+numpy>=1.21.0
+scipy>=1.7.0
+beautifulsoup4>=4.9.0
+lxml>=4.6.0
+tldextract>=3.0.0
+python-whois>=0.8.0
+regex>=2021.0.0
+requests>=2.25.0
