@@ -11,6 +11,14 @@ import datetime
 import re
 
 
+def parse_tld(url):
+	"""Compatible with tldextract 2.x (tuple) and 3.x+ (ExtractResult)."""
+	result = extract(url)
+	if hasattr(result, 'subdomain'):
+		return result.subdomain, result.domain, result.suffix
+	return result
+
+
 def url_having_ip(url):
     match=re.search('(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'  #IPv4
                     '((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)'  #IPv4 in hexadecimal
@@ -61,14 +69,14 @@ def doubleSlash(url):
         return -1
 
 def prefix_suffix(url):
-    subDomain, domain, suffix = extract(url)
+    subDomain, domain, suffix = parse_tld(url)
     if(domain.count('-')):
         return 1
     else:
         return -1
 
 def sub_domain(url):
-    subDomain, domain, suffix = extract(url)
+    subDomain, domain, suffix = parse_tld(url)
     if(subDomain.count('.')==0):
         return -1
     elif(subDomain.count('.')==1):
@@ -85,7 +93,7 @@ def SSLfinal_State(url):
             usehttps = 0
 #getting the certificate issuer to later compare with trusted issuer 
         #getting host name
-        subDomain, domain, suffix = extract(url)
+        subDomain, domain, suffix = parse_tld(url)
         host_name = domain + "." + suffix
         context = ssl.create_default_context()
         sct = context.wrap_socket(socket.socket(), server_hostname = host_name)
@@ -118,12 +126,23 @@ def SSLfinal_State(url):
         
         return 1
 
+def whois_date(value):
+	"""Normalize python-whois dates (datetime or list of datetimes)."""
+	if value is None:
+		return None
+	if isinstance(value, list):
+		value = value[0]
+	return value
+
+
 def domain_registration(url):
     try:
         w = whois.whois(url)
-        updated = w.updated_date
-        exp = w.expiration_date
-        length = (exp[0]-updated[0]).days
+        updated = whois_date(w.updated_date)
+        exp = whois_date(w.expiration_date)
+        if updated is None or exp is None:
+            return 0
+        length = (exp - updated).days
         if(length<=365):
             return 1
         else:
@@ -140,7 +159,7 @@ def port(url):
     return 0
 
 def https_token(url):
-    subDomain, domain, suffix = extract(url)
+    subDomain, domain, suffix = parse_tld(url)
     host =subDomain +'.' + domain + '.' + suffix 
     if(host.count('https')): #attacker can trick by putting https in domain part
         return 1
@@ -149,7 +168,7 @@ def https_token(url):
 
 def request_url(url):
     try:
-        subDomain, domain, suffix = extract(url)
+        subDomain, domain, suffix = parse_tld(url)
         websiteDomain = domain
         
         opener = urllib.request.urlopen(url).read()
@@ -160,7 +179,7 @@ def request_url(url):
         linked_to_same = 0
         avg =0
         for image in imgs:
-            subDomain, domain, suffix = extract(image['src'])
+            subDomain, domain, suffix = parse_tld(image['src'])
             imageDomain = domain
             if(websiteDomain==imageDomain or imageDomain==''):
                 linked_to_same = linked_to_same + 1
@@ -168,7 +187,7 @@ def request_url(url):
         total = total + len(vids)
         
         for video in vids:
-            subDomain, domain, suffix = extract(video['src'])
+            subDomain, domain, suffix = parse_tld(video['src'])
             vidDomain = domain
             if(websiteDomain==vidDomain or vidDomain==''):
                 linked_to_same = linked_to_same + 1
@@ -188,7 +207,7 @@ def request_url(url):
 
 def url_of_anchor(url):
     try:
-        subDomain, domain, suffix = extract(url)
+        subDomain, domain, suffix = parse_tld(url)
         websiteDomain = domain
         
         opener = urllib.request.urlopen(url).read()
@@ -198,7 +217,7 @@ def url_of_anchor(url):
         linked_to_same = 0
         avg = 0
         for anchor in anchors:
-            subDomain, domain, suffix = extract(anchor['href'])
+            subDomain, domain, suffix = parse_tld(anchor['href'])
             anchorDomain = domain
             if(websiteDomain==anchorDomain or anchorDomain==''):
                 linked_to_same = linked_to_same + 1
@@ -289,15 +308,16 @@ def iframe(url):
 def age_of_domain(url):
     try:
         w = whois.whois(url)
-        start_date = w.creation_date
+        start_date = whois_date(w.creation_date)
+        if start_date is None:
+            return 0
         current_date = datetime.datetime.now()
-        age =(current_date-start_date[0]).days
+        age = (current_date - start_date).days
         if(age>=180):
             return -1
         else:
             return 1
-    except Exception as e:
-        print(e)
+    except Exception:
         return 0
         
 def dns(url):
