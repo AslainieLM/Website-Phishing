@@ -8,5 +8,8 @@
 		</p>
 	</div>
 </footer>
+<?php if (!empty($url_check_comparison)) : ?>
+	<?php include __DIR__ . '/comparison_modal.php'; ?>
+<?php endif; ?>
 </body>
 </html>

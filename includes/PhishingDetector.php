@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/trusted_site.php';
+
 class PhishingDetector
 {
 	private $suspiciousKeywords = [
@@ -29,6 +31,7 @@ class PhishingDetector
 		$parsedUrl = parse_url($url);
 		$host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
 		$path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+		$onOfficialDomain = resolveOfficialDomainForHost($host) !== null;
 
 		if (filter_var($host, FILTER_VALIDATE_IP)) {
 			$score += 40;
@@ -41,7 +44,7 @@ class PhishingDetector
 		}
 
 		$subdomainCount = count(explode('.', $host)) - 2;
-		if ($subdomainCount >= 3) {
+		if (!$onOfficialDomain && $subdomainCount >= 3) {
 			$score += 25;
 			$reasons[] = "High number of subdomains detected ({$subdomainCount}).";
 		}
@@ -51,12 +54,14 @@ class PhishingDetector
 			$reasons[] = 'URL length is exceptionally long (> 75 characters).';
 		}
 
-		foreach ($this->suspiciousKeywords as $keyword) {
-			if (stripos($host, $keyword) !== false || stripos($path, $keyword) !== false) {
-				if (!preg_match('/' . preg_quote($keyword, '/') . '\.[a-z]{2,}$/i', $host)) {
-					$score += 20;
-					$reasons[] = "Contains suspicious keyword target: '{$keyword}'.";
-					break;
+		if (!$onOfficialDomain) {
+			foreach ($this->suspiciousKeywords as $keyword) {
+				if (stripos($host, $keyword) !== false || stripos($path, $keyword) !== false) {
+					if (!preg_match('/' . preg_quote($keyword, '/') . '\.[a-z]{2,}$/i', $host)) {
+						$score += 20;
+						$reasons[] = "Contains suspicious keyword target: '{$keyword}'.";
+						break;
+					}
 				}
 			}
 		}
