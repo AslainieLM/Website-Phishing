@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/PhishingDetector.php';
+require_once __DIR__ . '/trusted_site.php';
 
 /**
  * Ensure the URL has a scheme for parsing and validation.
@@ -159,20 +160,29 @@ function checkUrl($db, $url)
 
 	if ($row !== null) {
 		if ($row['type'] == '1') {
-			return [
+			return enrichPhishingComparison([
 				'verdict' => 'Phishing detected — do not visit this site',
 				'class' => 'shell-alert--danger',
 				'details' => '',
 				'source' => 'database',
-			];
+			], $normalized);
 		}
 
-		return [
+		return enrichPhishingComparison([
 			'verdict' => 'This URL appears safe',
 			'class' => 'shell-alert--safe',
 			'details' => '',
 			'source' => 'database',
-		];
+		], $normalized);
+	}
+
+	if (isUrlOnOfficialBrandDomain($normalized)) {
+		return enrichPhishingComparison([
+			'verdict' => 'This URL appears safe',
+			'class' => 'shell-alert--safe',
+			'details' => 'This URL is on a recognized official domain for a trusted brand.',
+			'source' => 'official-domain',
+		], $normalized);
 	}
 
 	$detector = new PhishingDetector();
@@ -180,38 +190,48 @@ function checkUrl($db, $url)
 	$mlResult = runMlCheck($normalized);
 
 	if ($heuristic['isSuspicious']) {
-		return [
+		return enrichPhishingComparison([
 			'verdict' => 'Phishing detected — do not visit this site',
 			'class' => 'shell-alert--danger',
 			'details' => !empty($heuristic['reasons'])
 				? 'Risk signals: ' . implode(' ', $heuristic['reasons'])
 				: '',
 			'source' => 'heuristic',
-		];
+		], $normalized);
 	}
 
 	if ($mlResult === true) {
-		return [
+		return enrichPhishingComparison([
 			'verdict' => 'Phishing detected — do not visit this site',
 			'class' => 'shell-alert--danger',
 			'details' => '',
 			'source' => 'ml',
-		];
+		], $normalized);
+	}
+
+	$lookalike = resolveTrustedSiteLink($normalized);
+	if ($lookalike !== null) {
+		return enrichPhishingComparison([
+			'verdict' => 'Phishing detected — do not visit this site',
+			'class' => 'shell-alert--danger',
+			'details' => $lookalike['reason'],
+			'source' => 'lookalike',
+		], $normalized);
 	}
 
 	if ($mlResult === false) {
-		return [
+		return enrichPhishingComparison([
 			'verdict' => 'This URL appears safe',
 			'class' => 'shell-alert--safe',
 			'details' => '',
 			'source' => 'ml',
-		];
+		], $normalized);
 	}
 
-	return [
+	return enrichPhishingComparison([
 		'verdict' => 'This URL appears safe',
 		'class' => 'shell-alert--safe',
 		'details' => 'ML analysis was unavailable; result based on database and heuristic checks only.',
 		'source' => 'heuristic-only',
-	];
+	], $normalized);
 }
