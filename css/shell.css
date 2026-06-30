@@ -548,3 +548,259 @@ html {
 .shell-footer__contact a:hover {
 	text-decoration: underline;
 }
+
+.shell-btn--ghost {
+	background: transparent;
+	color: inherit;
+	border: 1px solid currentColor;
+	box-shadow: none;
+}
+
+.shell-btn--ghost:hover {
+	background: rgba(255, 255, 255, 0.12);
+}
+
+.shell-btn--sm {
+	padding: 0.4rem 0.85rem;
+	font-size: 0.875rem;
+}
+
+.shell-compare-modal-open {
+	overflow: hidden;
+}
+
+.shell-compare-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem 1.5rem;
+}
+
+.shell-compare-modal[hidden] {
+	display: none;
+}
+
+.shell-compare-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(21, 42, 69, 0.78);
+	z-index: 0;
+}
+
+.shell-compare-modal__panel {
+	position: relative;
+	z-index: 1;
+	width: min(1180px, 96%);
+	max-height: 94vh;
+	overflow: auto;
+	background: var(--shell-white);
+	border-radius: var(--shell-radius);
+	box-shadow: var(--shell-shadow);
+	border-top: 5px solid var(--shell-accent);
+	padding: 0;
+}
+
+.shell-compare-modal__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1.5rem;
+	margin-bottom: 0;
+	padding: 1.75rem 2.25rem 1.5rem;
+	background: linear-gradient(135deg, var(--shell-navy) 0%, var(--shell-navy-light) 100%);
+	color: var(--shell-white);
+}
+
+.shell-compare-modal__title {
+	margin: 0;
+	font-size: 1.65rem;
+	color: var(--shell-white);
+	letter-spacing: -0.02em;
+}
+
+.shell-compare-modal__subtitle {
+	margin: 0.5rem 0 0;
+	color: rgba(255, 255, 255, 0.88);
+	font-size: 1rem;
+	line-height: 1.55;
+}
+
+.shell-compare-modal__analysis {
+	margin: 0;
+	padding: 1.15rem 2.25rem;
+	background: var(--shell-bg);
+	border-bottom: 1px solid var(--shell-border);
+	border-left: 5px solid var(--shell-accent);
+	color: var(--shell-text);
+	font-size: 1rem;
+	line-height: 1.6;
+}
+
+.shell-compare-modal__close {
+	border: 0;
+	background: rgba(255, 255, 255, 0.12);
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 999px;
+	font-size: 1.5rem;
+	line-height: 1;
+	cursor: pointer;
+	color: var(--shell-white);
+	flex-shrink: 0;
+}
+
+.shell-compare-modal__close:hover {
+	background: rgba(255, 255, 255, 0.22);
+}
+
+.shell-compare-modal__grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 2rem;
+	padding: 2rem 2.25rem 0.5rem;
+}
+
+.shell-compare-card {
+	border: 1px solid var(--shell-border);
+	border-radius: var(--shell-radius);
+	padding: 1.75rem;
+	background: var(--shell-white);
+	box-shadow: var(--shell-shadow-sm);
+}
+
+.shell-compare-card--danger {
+	border-color: #fecaca;
+	border-left: 6px solid var(--shell-danger);
+	background: linear-gradient(180deg, #fffbfb 0%, var(--shell-white) 100%);
+}
+
+.shell-compare-card--safe {
+	border-color: #a5f3fc;
+	border-left: 6px solid var(--shell-accent);
+	background: linear-gradient(180deg, #f0fdff 0%, var(--shell-white) 100%);
+}
+
+.shell-compare-card__label {
+	margin: 0 0 1rem;
+	font-size: 0.8rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--shell-navy);
+}
+
+.shell-compare-card--danger .shell-compare-card__label {
+	color: var(--shell-danger);
+}
+
+.shell-compare-card--safe .shell-compare-card__label {
+	color: var(--shell-accent-hover);
+}
+
+.shell-compare-card__warning {
+	margin: 0 0 1.25rem;
+	padding: 1rem 1.15rem;
+	border-radius: 10px;
+	background: var(--shell-danger-bg);
+	border: 1px solid #fca5a5;
+	color: #991b1b;
+	font-size: 0.98rem;
+	line-height: 1.65;
+}
+
+.shell-compare-card__url {
+	margin: 0 0 1.15rem;
+	padding: 0.9rem 1rem;
+	word-break: break-all;
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 0.95rem;
+	line-height: 1.55;
+	background: var(--shell-bg);
+	border: 1px solid var(--shell-border);
+	border-radius: 8px;
+}
+
+.shell-compare-card__meta,
+.shell-compare-card__note {
+	margin: 0 0 1.15rem;
+	font-size: 0.95rem;
+	line-height: 1.6;
+}
+
+.shell-compare-card__preview {
+	border-radius: 12px;
+	overflow: hidden;
+	background: var(--shell-bg);
+	border: 1px solid var(--shell-border);
+	min-height: 220px;
+}
+
+.shell-compare-card__preview img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.shell-compare-card__preview--empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2rem 1.5rem;
+	min-height: 200px;
+	text-align: center;
+	color: var(--shell-text-muted);
+	font-size: 0.95rem;
+	line-height: 1.6;
+}
+
+.shell-compare-card__preview--empty p {
+	margin: 0;
+	max-width: 28rem;
+}
+
+.shell-compare-card__redirect {
+	display: inline-block;
+	margin-top: 1.25rem;
+	padding: 0.85rem 1.5rem;
+	text-decoration: none;
+	text-align: center;
+	width: 100%;
+}
+
+.shell-compare-modal__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1.5rem;
+	margin-top: 0;
+	padding: 1.5rem 2.25rem 2rem;
+	border-top: 1px solid var(--shell-border);
+	background: var(--shell-bg);
+	flex-wrap: wrap;
+}
+
+.shell-compare-modal__warning {
+	margin: 0;
+	color: var(--shell-navy);
+	font-weight: 600;
+	font-size: 0.98rem;
+	line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+	.shell-compare-modal__grid {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		padding: 1.5rem 1.25rem 0.5rem;
+	}
+
+	.shell-compare-modal__header,
+	.shell-compare-modal__analysis,
+	.shell-compare-modal__footer {
+		padding-left: 1.25rem;
+		padding-right: 1.25rem;
+	}
+}

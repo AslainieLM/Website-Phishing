@@ -7,6 +7,7 @@ $page_title = 'Phishing Website Detector — Check URLs';
 $url_check_message = '';
 $url_check_class = '';
 $url_check_details = '';
+$url_check_comparison = null;
 $submitted_url = '';
 
 if (isset($_POST['submit']) && isset($_POST['url'])) {
@@ -15,6 +16,7 @@ if (isset($_POST['submit']) && isset($_POST['url'])) {
 	$url_check_message = $result['verdict'];
 	$url_check_class = $result['class'];
 	$url_check_details = $result['details'];
+	$url_check_comparison = $result['comparison'] ?? null;
 }
 
 include('includes/head.php');
@@ -45,14 +47,7 @@ include('includes/header.php');
 				>
 				<button type="submit" name="submit" class="shell-btn shell-btn--primary">Check URL</button>
 			</form>
-			<?php if ($url_check_message !== '') : ?>
-				<div class="shell-alert <?php echo $url_check_class; ?>" role="alert">
-					<?php echo htmlspecialchars($url_check_message); ?>
-					<?php if ($url_check_details !== '') : ?>
-						<p class="shell-alert__detail"><?php echo htmlspecialchars($url_check_details); ?></p>
-					<?php endif; ?>
-				</div>
-			<?php endif; ?>
+			<?php include('includes/url_check_result.php'); ?>
 		</div>
 	</div>
 </main>
