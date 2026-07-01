@@ -53,7 +53,48 @@ function getOfficialHosts(): array
 		$hosts[] = 'www.' . $domain;
 	}
 
+	foreach (getOfficialHostExtraAllowlist() as $extraHosts) {
+		foreach ($extraHosts as $host) {
+			$hosts[] = $host;
+		}
+	}
+
 	return array_unique($hosts);
+}
+
+/**
+ * Extra hosts beyond apex + www that are known legitimate for an official domain.
+ *
+ * @return array<string, string[]>
+ */
+function getOfficialHostExtraAllowlist(): array
+{
+	return [
+		'bdonetworkbank.com.ph' => [
+			'www.personal.bdonetworkbank.com.ph',
+		],
+	];
+}
+
+/**
+ * Official domains where any subdomain is treated as trusted (e.g. google.com).
+ *
+ * @return string[]
+ */
+function getSubdomainWildcardDomains(): array
+{
+	return [
+		'chatgpt.com',
+		'openai.com',
+		'paypal.com',
+		'netflix.com',
+		'microsoft.com',
+		'google.com',
+		'apple.com',
+		'facebook.com',
+		'instagram.com',
+		'amazon.com',
+	];
 }
 
 function trustedNormalizeUrl(string $url): string
@@ -78,7 +119,16 @@ function hostBelongsToOfficialDomain(string $host, string $officialDomain): bool
 		return true;
 	}
 
-	return str_ends_with($host, '.' . $officialDomain);
+	$extraHosts = getOfficialHostExtraAllowlist()[$officialDomain] ?? [];
+	if (in_array($host, $extraHosts, true)) {
+		return true;
+	}
+
+	if (in_array($officialDomain, getSubdomainWildcardDomains(), true)) {
+		return str_ends_with($host, '.' . $officialDomain);
+	}
+
+	return false;
 }
 
 /**
@@ -198,10 +248,11 @@ function resolveTrustedSiteLink(string $submittedUrl): ?array
 		}
 
 		$primaryDomain = (string) (is_array($officialDomains) ? $officialDomains[0] : $officialDomains);
+		$trustedHost = 'www.' . $primaryDomain;
 
 		return [
-			'url' => $scheme . '://' . $primaryDomain . $port . $pathAndQuery,
-			'reason' => 'Domain contains "' . $keyword . '" but is not the official ' . $primaryDomain . '.',
+			'url' => $scheme . '://' . $trustedHost . $port . '/',
+			'reason' => 'Domain contains "' . $keyword . '" but is not the official ' . $primaryDomain . '. Compare with the trusted site.',
 			'confirmed_official' => true,
 		];
 	}

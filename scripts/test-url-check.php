@@ -43,4 +43,18 @@ $detector = new PhishingDetector();
 $heuristic = $detector->analyzeUrl('https://facebook.com');
 assert_true($heuristic['isSuspicious'] === false, 'facebook.com not heuristic-suspicious');
 
+// BDO lookalike subdomain must not be treated as official
+$bdoPhish = 'https://www.personal.bdo.com.ph/personal';
+assert_true(isUrlOnOfficialBrandDomain($bdoPhish) === false, 'personal.bdo.com.ph is not official');
+$lookalike = resolveTrustedSiteLink($bdoPhish);
+assert_true($lookalike !== null, 'personal.bdo.com.ph resolves trusted comparison');
+assert_true(
+	$lookalike['url'] === 'https://www.bdo.com.ph/',
+	'personal.bdo.com.ph compares against www.bdo.com.ph'
+);
+
+// Legitimate BDO Network Bank personal login stays official
+$bdoLegit = 'https://www.personal.bdonetworkbank.com.ph/sso/login';
+assert_true(isUrlOnOfficialBrandDomain($bdoLegit) === true, 'personal.bdonetworkbank.com.ph is official');
+
 exit($failures > 0 ? 1 : 0);
